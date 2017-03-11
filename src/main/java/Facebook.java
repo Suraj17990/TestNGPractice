@@ -6,6 +6,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.Assertion;
 
+import java.time.Instant;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -13,16 +15,17 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class Facebook extends GuiController {
     final static Logger logger = Logger.getLogger(Facebook.class);
+    long now = Instant.now().toEpochMilli();
 
-    public void login(){
+    public void login(String userName, String password){
         logger.info("Facebook Test Started");
         driver.get("https://www.facebook.com/");
         WebElement emailField = driver.findElement(By.id("email"));
         emailField.clear();
-        emailField.sendKeys("");
+        emailField.sendKeys(userName);
         WebElement passwordField = driver.findElement(By.id("pass"));
         passwordField.clear();
-        passwordField.sendKeys("");
+        passwordField.sendKeys(password);
         WebElement loginButton = driver.findElement(By.id("loginbutton"));
         loginButton.click();
         driver.manage().timeouts().implicitlyWait(20,SECONDS);
@@ -37,14 +40,20 @@ public class Facebook extends GuiController {
         element.click();
         WebElement updateStatus = driver.findElement(By.xpath("//div[@data-testid='status-attachment-mentions-input']"));
         updateStatus.click();
-        updateStatus.sendKeys("Hello Friends");
+        updateStatus.sendKeys("Hello Friends"+now);
+    }
+
+    public void verifyStatus(){
+        WebDriverWait wait = new WebDriverWait(driver, 60);
         WebElement postbutton = driver.findElement(By.xpath("//button[@data-testid='react-composer-post-button']//span//em[text()='Post']"));
         postbutton.click();
         WebElement checkUpdate = driver.findElement(By.xpath("//div[contains(@class,'userContent')]//p"));
         wait.until(ExpectedConditions.visibilityOf(checkUpdate));
         waitForElement(checkUpdate);
         String value = checkUpdate.getText();
-        Assert.assertEquals(value, "Hello Friends");
+        WebElement justNow = driver.findElement(By.xpath("//span[contains(text(),'Just now')]"));
+        waitForElement(justNow);
+        Assert.assertEquals(value, "Hello Friends"+now);
     }
 
     public void verifyLogin(){

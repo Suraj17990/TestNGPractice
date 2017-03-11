@@ -16,6 +16,9 @@ public class GuiController {
         driver = new FirefoxDriver();
     }
 
+    public void closeBrowser(){
+        driver.quit();
+    }
     public void waitForElement(WebElement element) {
         for (int i=0; i<10; i++){
             if(element.isDisplayed()) {
